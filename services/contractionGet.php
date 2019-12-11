@@ -1,37 +1,20 @@
 <?php
+require_once "constants.php";
+require_once "persistenceServices.php";
 
-echo "here 0";
-include "connect.php";
+try {
+   $conn = psConnection();
 
-$conn = connection();
+   $result = psQuery( $conn, "SELECT * FROM contraction" );
 
-echo "here 1";
+   $dataSet = array( );
 
-$sql = "SELECT * FROM contraction";
-$result = $conn->query($sql);
-
-echo "here 2";
-echo "<html><head>";
-echo "<title>Contractions</title>";
-echo "<style type=text/css>";
-echo "body {";
-echo "margin-left: 0.5in;";
-echo "}";
-echo "</style>";
-echo "</head>";
-echo "<body>";
-echo "<h3>Contractions</h3>";
-
-if ($result->num_rows > 0) {
-    // output data of each row
-    while($row = $result->fetch_assoc()) {
-        echo $row["firstElement"]. " + " . $row["secondElement"]. " = " .$row["result"] . "<br>";
-    }
-} else {
-    echo "0 results";
+   $dataSet[0] = array( "status" => SUCCESS );
+   $dataSet[1] = $result;
+   print json_encode( $dataSet );
 }
-
-echo "</body>";
-echo "</html>";
-$conn->close();
+catch ( Exception $e ) {
+   $dataSet[0] = array( "status" => FAILURE, "errorMsg" => $e->getMessage() );
+   print json_encode( $dataSet );
+}
 ?>
