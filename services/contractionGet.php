@@ -5,7 +5,7 @@ require_once "persistenceServices.php";
 try {
    $conn = psConnection();
 
-   $result = psQuery( $conn, "SELECT * FROM contraction" );
+   $result = psQuery( $conn, "SELECT * FROM contraction order by sequence1, sequence2" );
 
    $dataSet = array( );
 

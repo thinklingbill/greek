@@ -1,21 +1,19 @@
 <?php
 require_once( "constants.php" );
+require_once( "config.php" );
 
 function psConnection() {
 
-   /* connection info */
-   $servername = "localhost";
-   $username = "root";
-   $password = "mysql";
-   $dbname = "greek";
+   global $_serverName, $_userName, $_password, $_dbName;
 
    try {
-      $conn = new mysqli($servername, $username, $password, $dbname);
+      $conn = new mysqli( $_serverName, $_userName, $_password, $_dbName );
 
       if ($conn->connect_error) {
          throw new Exception( $conn->connect_error );
       }
 
+      $conn->set_charset( "utf8" );
       return $conn;
    }
    catch( Exception $e ) {
