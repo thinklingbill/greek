@@ -9,5 +9,4 @@
    require_once( "services/contractionGet.php" );
 ?>
 </body>
-
 </html>
