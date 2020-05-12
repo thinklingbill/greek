@@ -1,4 +1,5 @@
 import React from 'react';
+import Container from 'react-bootstrap/Container';
 import Card from 'react-bootstrap/Card'
 import Button from 'react-bootstrap/Button'
 import ButtonGroup from 'react-bootstrap/ButtonGroup'
@@ -138,6 +139,7 @@ class Flashcard extends React.Component {
          throw new Error(this.state.errorMessage);
       }
       return (
+         <Container>
          <Card>
             <Card.Header as="h3">{this.state.card.lemma}</Card.Header>
             <Card.Body>
@@ -151,6 +153,7 @@ class Flashcard extends React.Component {
                </Button>
                </Card.Footer>
          </Card>
+         </Container>
       )
    }
 };

@@ -1,11 +1,21 @@
 import React from 'react';
+import Navbar from 'react-bootstrap/Navbar';
+import Nav from 'react-bootstrap/Nav';
 import Container from 'react-bootstrap/Container';
-import Row from 'react-bootstrap/Row';
 import Alert from 'react-bootstrap/Alert';
+import {
+  BrowserRouter,
+  Route,
+  Redirect,
+} from "react-router-dom";
+import { withRouter } from "react-router";
+
 //import logo from './logo.svg';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 import Flashcard from './components/flashcard';
+import VerbParadigm from './components/verbParadigm';
+import Contraction from './components/contraction';
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -45,17 +55,47 @@ class ErrorBoundary extends React.Component {
   }
 }
 
+class Header extends React.Component {
+  constructor(props) {
+    super(props);
+    // TODO - redirect to vocabulary-flashcards in case of any non-route 
+    // path, with active state correctly set
+    this.state = { pathname: props.location.pathname };
+
+  }
+
+  render() {
+    return (
+      <Container>
+      <Navbar bg="light">
+        <Navbar.Brand>NT Greek Flashcards</Navbar.Brand>
+        <Nav className="mr-auto" activeKey={this.state.pathname}>
+          <Nav.Link href="/vocabulary-flashcards">Vocabulary</Nav.Link>
+          <Nav.Link href="/verb-paradigms">Verb Paradigms</Nav.Link>
+          <Nav.Link href="/contractions">Contractions</Nav.Link>
+        </Nav>
+      </Navbar>
+      </Container>
+    )
+  }
+}
+
+const HeaderWithRouter = withRouter(Header);
+
 function App() {
   return (
     <div className="App">
-      <Container>
-        <Row>
-        <ErrorBoundary>
-          <Flashcard />
-        </ErrorBoundary>
-        </Row>
-      </Container>
-
+      <ErrorBoundary>
+          <BrowserRouter>
+            <HeaderWithRouter />
+            <Route exact path="/">
+              <Redirect to="/vocabulary-flashcards" />
+            </Route>
+            <Route path="/vocabulary-flashcards" exact component={Flashcard} />
+            <Route path="/verb-paradigms" exact component={VerbParadigm} />
+            <Route path="/contractions" exact component={Contraction} />
+          </BrowserRouter>
+      </ErrorBoundary>
     </div>
   );
 }
