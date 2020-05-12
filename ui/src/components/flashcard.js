@@ -1,93 +1,156 @@
 import React from 'react';
+import Card from 'react-bootstrap/Card'
+import Button from 'react-bootstrap/Button'
+import ButtonGroup from 'react-bootstrap/ButtonGroup'
 
+const text = {
+   correct: "Got it!",
+   missed: "I missed it",
+   showDefinition: "Show definition",
+   resetStats: "Reset stats",
+   correctLabel: "Correct",
+   missedLabel: "Missed",
+   transliterationLabel: "Transliteration:",
+   statsLabel: "My stats:",
+}
 
-// TODO - fix the REST services to return consistent results, with correct error checking
 class Flashcard extends React.Component {
    // constructor() { }
    constructor(props) {
       super(props);
-      // This binding is necessary to make `this` work in the callback
-      // this.handleClick = this.handleClick.bind(this);      // don't need this but keeping it here in case
-      this.state = { card: {}, mode: 'flashcard', correct: 0, missed: 0 };
+      this.state = {
+         card: {},
+         mode: 'flashcard',
+         correct: 0,
+         missed: 0,
+         hasError: false,
+         error: null,
+         errorMessage: null
+      };
    }
 
    componentDidMount() {
       // get the state of the stats
-      fetch('http://localhost:3000/api/vocabulary-stat?userId=1')   // TODO - get the real user id
-         .then(res => res.json())
-         .then((res) => {
-            console.log( res[0] ); 
-             this.setState({ correct: res[0].correctCount, missed: res[0].missedCount });
+      //      const _this = this;
+      fetch('http://localhost:3000/api/vocabulary-stat')
+         .then((res) => { // check status
+            if (!res.ok) {
+               throw new Error(res.statusText);
+            }
+            return res.json(); // convert to json
          })
-         .catch(console.log)
-
+         .then((res) => { // business/custom logic
+            this.setState({ correct: res[0].correctCount, missed: res[0].missedCount });
+            return res;
+         })
+         .catch((error) => { // carch errors
+            this.setState({ hasError: true, error: error, errorMessage: error });
+         });
 
       this.newContent();
    }
 
-
    newContent() {
       fetch('http://localhost:3000/api/vocabulary/flashcard?minFrequency=10')
-         .then(res => res.json())
-         .then((res) => {
-            this.actionFragment = <div className='action'><button onClick={() => this.handleClick('show')}>Show</button></div>;
-            this.setState({ card: res.data[0], mode: 'flashcard' });
+         .then((res) => { // check status
+            if (!res.ok) {
+               throw new Error(res.statusText);
+            }
+            return res.json(); // convert to json
          })
-         .catch(console.log)
+         .then((res) => { // business/custom logic
+            this.actionFragment = <React.Fragment>
+               <Button
+                  variant="outline-primary"
+                  onClick={() => this.handleClick('show')}
+               >{text.showDefinition}
+               </Button>
+            </React.Fragment>;
+            this.setState({ card: res[0], mode: 'flashcard' });
+            return res;
+         })
+         .catch((error) => { // carch errors
+            this.setState({ hasError: true, error: error, errorMessage: error });
+         });
    }
 
    handleClick = (command) => {
       if (this.state.mode === 'flashcard') {
          this.actionFragment = <React.Fragment>
-            <div className='definition'>{this.state.card.definition}</div>
-            <div className='action'>
-               <button onClick={() => this.handleClick('markCorrect')}>Correct</button>
-               <button onClick={() => this.handleClick('markMissed')}>Missed</button>
-            </div>
+            <Card.Text className='definition'>{this.state.card.definition}</Card.Text>
+            <Card.Text>{text.transliterationLabel} {this.state.card.transliteration}</Card.Text>
+            <Card.Text>Appears {this.state.card.frequencyCount} times in the NT</Card.Text>            
+            <ButtonGroup aria-label="Flashcard Stat Response">
+            <Button
+               variant="outline-success"
+               onClick={() => this.handleClick('markCorrect')}
+            >{text.correct}
+            </Button>
+            <Button
+               variant="outline-danger"
+               onClick={() => this.handleClick('markMissed')}
+            >{text.missed}
+            </Button>
+            </ButtonGroup>
          </React.Fragment>;
          this.setState({ card: this.state.card, mode: 'result' });
       }
       else {
          if (command === 'markCorrect') {
-            console.log("Marking Correct with local increment", this.state.card.vocabularyId);
-            this.setState( { correct: this.state.correct+1 });
-            fetch('http://localhost:3000/api/vocabulary-stat/correct', {
-               method: 'POST',
+            this.setState({ correct: this.state.correct + 1 });
+            fetch('http://localhost:3000/api/vocabulary-stat/mark-correct', {
+               method: 'PUT',
                headers: { 'Content-Type': 'application/json' },
-               body: JSON.stringify({ userId: 1, vocabularyId: this.state.card.vocabularyId })
+               body: JSON.stringify({ vocabularyId: this.state.card.vocabularyId })
             })
-               .then(res => res.json())
-               .catch(console.log) // TODO - OK, what is the real best practice for error catching
+               .then((res) => { // check status
+                  if (!res.ok) {
+                     throw new Error(res.statusText);
+                  }
+               })
+               .catch((error) => { // carch errors
+                  this.setState({ hasError: true, error: error, errorMessage: error });
+               });
          }
          else {
-            console.log("Marking Missed with local increment", this.state.card.vocabularyId);
-            this.setState( { missed: this.state.missed+1 });
-            fetch('http://localhost:3000/api/vocabulary-stat/missed', {
-               method: 'POST',
+            this.setState({ missed: this.state.missed + 1 });
+            fetch('http://localhost:3000/api/vocabulary-stat/mark-missed', {
+               method: 'PUT',
                headers: { 'Content-Type': 'application/json' },
-               body: JSON.stringify({ userId: 1, vocabularyId: this.state.card.vocabularyId })
+               body: JSON.stringify({ vocabularyId: this.state.card.vocabularyId })
             })
-               .then(res => res.json())
-               .catch(console.log)
+               .then((res) => { // check status
+                  if (!res.ok) {
+                     throw new Error(res.statusText);
+                  }
+               })
+               .catch((error) => { // carch errors
+                  this.setState({ hasError: true, error: error, errorMessage: error });
+               });
          }
-         // const Parent = ReactDOM.render(<TestComp />, document.getElementById('root'));
-         // Parent.setState( { i: 11 } );
 
          this.newContent();
       }
    }
 
    render() {
+      if (this.state.hasError) {
+         throw new Error(this.state.errorMessage);
+      }
       return (
-         <div className='flashcard' key={this.state.card.vocabularyId}>
-            <div className='lemma'>{this.state.card.lemma}</div>
-            <div>
+         <Card>
+            <Card.Header as="h3">{this.state.card.lemma}</Card.Header>
+            <Card.Body>
                {this.actionFragment}
-            </div>
-            <div className='flashcard-stats'>
-               {this.state.correct} Correct, {this.state.missed} Missed
-            </div>
-         </div>
+            </Card.Body>
+            <Card.Footer>
+               {text.statsLabel} {this.state.correct} {text.correctLabel}, {this.state.missed} {text.missedLabel}
+               {' ' }
+               <Button variant="outline-info">
+                  {text.resetStats}
+               </Button>
+               </Card.Footer>
+         </Card>
       )
    }
 };
