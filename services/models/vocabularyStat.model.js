@@ -13,7 +13,12 @@ const get = function (req, res, next) {
    }
 
    // compute the correct and missed totals for this user
-   req.app.locals.connection.query("select sum( correctCount ) as correctCount, sum( missedCount) as missedCount from vocabularyStat where userId = ?", userId, (error, result, fields) => {
+   req.app.locals.connection.query(
+      "select sum( correctCount ) as correctCount \
+             ,sum( missedCount) as missedCount \
+         from vocabularyStat \
+        where userId = ?"
+        ,[userId], (error, result, fields) => {
       if (error) {
          return (next(error));
       }
@@ -35,7 +40,12 @@ const markCorrect = function (req, res, next) {
       return (next({ message: "vocabularyId is not set" }));
    }
 
-   req.app.locals.connection.query("update vocabularyStat set correctCount = correctCount+1 where userId = ? and vocabularyId = ?", [userId, vocabularyId], (error, result, fields) => {
+   req.app.locals.connection.query(
+      "update vocabularyStat \
+          set correctCount = correctCount+1 \
+        where userId = ? \
+          and vocabularyId = ?"
+          , [userId, vocabularyId], (error, result, fields) => {
       if (error) {
          return (next(error));
       }
@@ -46,7 +56,10 @@ const markCorrect = function (req, res, next) {
          res.send({ message: msg });
       }
       else {         
-         req.app.locals.connection.query("insert vocabularyStat(userId, vocabularyId, correctCount, missedCount) values( ?, ?, ?, ? )", [userId, vocabularyId, 1, 0], (error, result, fields) => {
+         req.app.locals.connection.query(
+            "insert vocabularyStat(userId, vocabularyId, correctCount, missedCount) \
+             values( ?, ?, ?, ? )"
+             , [userId, vocabularyId, 1, 0], (error, result, fields) => {
             if (error) {
                return (next(error));
             }
@@ -70,7 +83,12 @@ const markMissed = function (req, res, next) {
       return (next({ message: "vocabularyId is not set" }));
    }
 
-   req.app.locals.connection.query("update vocabularyStat set missedCount = missedCount+1 where userId = ? and vocabularyId = ?", [userId, vocabularyId], (error, result, fields) => {
+   req.app.locals.connection.query(
+      "update vocabularyStat \
+          set missedCount = missedCount+1 \
+        where userId = ? \
+          and vocabularyId = ?"
+          , [userId, vocabularyId], (error, result, fields) => {
       if (error) {
          return (next(error));
       }
@@ -81,7 +99,10 @@ const markMissed = function (req, res, next) {
          res.send({ message: msg });
       }
       else {         
-         req.app.locals.connection.query("insert vocabularyStat(userId, vocabularyId, correctCount, missedCount) values( ?, ?, ?, ? )", [userId, vocabularyId, 0, 1], (error, result, fields) => {
+         req.app.locals.connection.query(
+            "insert vocabularyStat(userId, vocabularyId, correctCount, missedCount) \
+             values( ?, ?, ?, ? )"
+             , [userId, vocabularyId, 0, 1], (error, result, fields) => {
             if (error) {
                return (next(error));
             }
@@ -100,7 +121,13 @@ const reset = function (req, res, next) {
    }
 
    // set the counts to 0 for any record that had a count > 0
-   req.app.locals.connection.query("update vocabularyStat set correctCount = 0, missedCount = 0 where userId = ? and ( correctCount + missedCount > 0 )", [userId], (error, result, fields) => {
+   req.app.locals.connection.query(
+      "update vocabularyStat \
+          set correctCount = 0 \
+             ,missedCount = 0 \
+        where userId = ? \
+          and ( correctCount + missedCount > 0 )"
+          , [userId], (error, result, fields) => {
       if (error) {
          return (next(error));
       }

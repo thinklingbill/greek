@@ -1,6 +1,9 @@
 // Greek services server
 // Bill Roberts, 5/9/2020
 // Serves out database content and posts database changes for the greek dataset
+//
+// Changes
+// Bill Roberts, 5/17/2020 - Added contraction services
 
 const express = require("express");
 const bodyParser = require("body-parser");
@@ -43,10 +46,18 @@ app.use(function (req, res, next) {
   next();
 });
 
+// Add vocabulary routes
 var vocabulary = require('./routes/vocabulary.routes');
 var vocabularyStat = require('./routes/vocabularyStat.routes');
 app.use('/api/vocabulary', vocabulary);
 app.use('/api/vocabulary-stat', vocabularyStat);
+
+// Add contraction routes
+var contraction = require('./routes/contraction.routes');
+var contractionStat = require('./routes/contractionStat.routes');
+app.use('/api/contraction', contraction);
+app.use('/api/contraction-stat', contractionStat);
+
 
 // Default error handler
 app.use(function (err, req, res, next) {

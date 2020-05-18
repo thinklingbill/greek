@@ -7,7 +7,7 @@ CREATE TABLE greek.contraction (
   firstElement VARCHAR(10) NOT NULL,
   secondElement VARCHAR(10) NOT NULL,
   genuineSpurious CHAR(1) NOT NULL,
-  result VARCHAR(10) NOT NULL,
+  resultingElement VARCHAR(10) NOT NULL,
   PRIMARY KEY (contractionId));
   
 ALTER TABLE greek.contraction 

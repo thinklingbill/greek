@@ -1,4 +1,4 @@
-// Vocabulary model
+// Vocabulary routes
 // Bill Roberts, 5/9/2020
 // Handles routes for the vocabulary services
 

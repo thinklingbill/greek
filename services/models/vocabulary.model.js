@@ -34,7 +34,14 @@ const loadVocabulary = function () {
 
 // send the entire vocabulary table to the caller
 const get = function (req, res, next) {
-   req.app.locals.connection.query("select vocabularyId, lemma, transliteration, frequencyCount, definition from vocabulary", (error, result, fields) => {
+   req.app.locals.connection.query(
+      "select vocabularyId \
+             ,lemma \
+             ,transliteration \
+             ,frequencyCount \
+             ,definition \
+         from vocabulary"
+         ,(error, result, fields) => {
       if (error) {
          return (next(error));
       }
@@ -53,7 +60,11 @@ const getFlashcard = function(req, res, next) {
       return( next( {message: "Minimum Frequency must be a valid number" }));
    }
 
-   req.app.locals.connection.query("select count(*) as cnt from vocabulary where frequencyCount >= ?", [ minFrequency ], (error, result, fields) => {
+   req.app.locals.connection.query(
+      "select count(*) as cnt \
+         from vocabulary \
+        where frequencyCount >= ?"
+        , [ minFrequency ], (error, result, fields) => {
       if (error) {
          return (next(error));
       }
@@ -81,7 +92,10 @@ const reset = function(req, res, next) {
    }
 
    // truncate the vocabulary table
-   req.app.locals.connection.query("delete from vocabulary where 1=1", (error, result, fields) => {
+   req.app.locals.connection.query(
+      "delete from vocabulary \
+        where 1=1"
+        , (error, result, fields) => {
       if (error) {
          return (next( error ));
       }
