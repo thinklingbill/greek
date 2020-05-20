@@ -3,6 +3,10 @@ import Container from 'react-bootstrap/Container';
 import Card from 'react-bootstrap/Card'
 import Button from 'react-bootstrap/Button'
 import ButtonGroup from 'react-bootstrap/ButtonGroup'
+import Form from 'react-bootstrap/Form'
+import FormControl from 'react-bootstrap/FormControl'
+import Row from 'react-bootstrap/Row'
+import Col from 'react-bootstrap/Col'
 
 const text = {
    correct: "Got it!",
@@ -13,6 +17,12 @@ const text = {
    missedLabel: "Missed",
    transliterationLabel: "Transliteration:",
    statsLabel: "My stats:",
+   minFrequencyLabel: "Words appearing this many times or more in the NT:"
+}
+
+const defaultValue = {
+   minFrequency: 10
+  ,maxCorrect: 2
 }
 
 class Flashcard extends React.Component {
@@ -24,9 +34,10 @@ class Flashcard extends React.Component {
          mode: 'flashcard',
          correct: 0,
          missed: 0,
+         minFrequency: defaultValue.minFrequency,         
          hasError: false,
          error: null,
-         errorMessage: null
+         errorMessage: null,
       };
    }
 
@@ -52,7 +63,7 @@ class Flashcard extends React.Component {
    }
 
    newContent() {
-      fetch('http://localhost:3000/api/vocabulary/flashcard?minFrequency=10')
+      fetch("http://localhost:3000/api/vocabulary/flashcard?minFrequency="+this.state.minFrequency)
          .then((res) => { // check status
             if (!res.ok) {
                throw new Error(res.statusText);
@@ -76,22 +87,23 @@ class Flashcard extends React.Component {
    }
 
    handleClick = (command) => {
+      console.log( this.state.minFrequency );
       if (this.state.mode === 'flashcard') {
          this.actionFragment = <React.Fragment>
             <Card.Text className='definition'>{this.state.card.definition}</Card.Text>
             <Card.Text>{text.transliterationLabel} {this.state.card.transliteration}</Card.Text>
-            <Card.Text>Appears {this.state.card.frequencyCount} times in the NT</Card.Text>            
+            <Card.Text>Appears {this.state.card.frequencyCount} times in the NT</Card.Text>
             <ButtonGroup aria-label="Flashcard Stat Response">
-            <Button
-               variant="outline-success"
-               onClick={() => this.handleClick('markCorrect')}
-            >{text.correct}
-            </Button>
-            <Button
-               variant="outline-danger"
-               onClick={() => this.handleClick('markMissed')}
-            >{text.missed}
-            </Button>
+               <Button
+                  variant="outline-success"
+                  onClick={() => this.handleClick('markCorrect')}
+               >{text.correct}
+               </Button>
+               <Button
+                  variant="outline-danger"
+                  onClick={() => this.handleClick('markMissed')}
+               >{text.missed}
+               </Button>
             </ButtonGroup>
          </React.Fragment>;
          this.setState({ card: this.state.card, mode: 'result' });
@@ -134,28 +146,49 @@ class Flashcard extends React.Component {
       }
    }
 
+   updateInputValue = (evt) => {
+      console.log( "ONCHANGE");
+      this.setState({
+        minFrequency: evt.target.value
+      });
+   }
+
    render() {
       if (this.state.hasError) {
          throw new Error(this.state.errorMessage);
       }
       return (
          <Container>
-         <Card>
-            <Card.Header as="h3">{this.state.card.lemma}</Card.Header>
-            <Card.Body>
-               {this.actionFragment}
-            </Card.Body>
-            <Card.Footer>
-               {text.statsLabel} {this.state.correct} {text.correctLabel}, {this.state.missed} {text.missedLabel}
-               {' ' }
-               <Button variant="outline-info">
-                  {text.resetStats}
-               </Button>
+            <Form>
+            <Form.Group controlId="minFrequency">
+               <Row>
+               <Col>
+               <Form.Label>{text.minFrequencyLabel}</Form.Label>
+               </Col>
+               <Col>
+               <FormControl size="sm" type="text" defaultValue={defaultValue.minFrequency} onChange={this.updateInputValue} />
+               </Col>
+               </Row>
+            </Form.Group>
+            </Form>
+            <Card>
+               <Card.Header as="h3">{this.state.card.lemma}</Card.Header>
+               <Card.Body>
+                  {this.actionFragment}
+               </Card.Body>
+               <Card.Footer>
+                  {text.statsLabel} {this.state.correct} {text.correctLabel}, {this.state.missed} {text.missedLabel}
+                  {' '}
+                  <Button variant="outline-info">
+                     {text.resetStats}
+                  </Button>
                </Card.Footer>
-         </Card>
+            </Card>
          </Container>
       )
    }
 };
+
+// <Form.Control size="sm" type="text" placeholder={defaultValue.maxCorrect} />
 
 export default Flashcard;
