@@ -10,6 +10,8 @@ CREATE TABLE greek.contraction (
   resultingElement VARCHAR(10) NOT NULL,
   PRIMARY KEY (contractionId));
   
+/*
 ALTER TABLE greek.contraction 
 ADD UNIQUE INDEX ixEntry USING BTREE (firstElement ASC, secondElement ASC, genuineSpurious ASC);
+*/
   

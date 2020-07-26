@@ -8,6 +8,8 @@ import FormControl from 'react-bootstrap/FormControl'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 
+const service = require('../config/services.json');
+
 const text = {
    correct: "Got it!",
    missed: "I missed it",
@@ -44,7 +46,7 @@ class Flashcard extends React.Component {
    componentDidMount() {
       // get the state of the stats
       //      const _this = this;
-      fetch('http://localhost:3000/api/vocabulary-stat')
+      fetch(service.host+':'+service.port+'/api/vocabulary-stat')
          .then((res) => { // check status
             if (!res.ok) {
                throw new Error(res.statusText);
@@ -63,7 +65,7 @@ class Flashcard extends React.Component {
    }
 
    newContent() {
-      fetch("http://localhost:3000/api/vocabulary/flashcard?minFrequency="+this.state.minFrequency)
+      fetch(service.host+':'+service.port+'/api/vocabulary/flashcard?minFrequency='+this.state.minFrequency)
          .then((res) => { // check status
             if (!res.ok) {
                throw new Error(res.statusText);
@@ -111,7 +113,7 @@ class Flashcard extends React.Component {
       else {
          if (command === 'markCorrect') {
             this.setState({ correct: this.state.correct + 1 });
-            fetch('http://localhost:3000/api/vocabulary-stat/mark-correct', {
+            fetch(service.host+':'+service.port+'/api/vocabulary-stat/mark-correct', {
                method: 'PUT',
                headers: { 'Content-Type': 'application/json' },
                body: JSON.stringify({ vocabularyId: this.state.card.vocabularyId })
@@ -127,7 +129,7 @@ class Flashcard extends React.Component {
          }
          else {
             this.setState({ missed: this.state.missed + 1 });
-            fetch('http://localhost:3000/api/vocabulary-stat/mark-missed', {
+            fetch(service.host+':'+service.port+'/api/vocabulary-stat/mark-missed', {
                method: 'PUT',
                headers: { 'Content-Type': 'application/json' },
                body: JSON.stringify({ vocabularyId: this.state.card.vocabularyId })
